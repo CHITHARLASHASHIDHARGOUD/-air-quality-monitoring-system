@@ -1,0 +1,251 @@
+{
+  "info": {
+    "name": "Urban Air Quality API",
+    "description": "Complete API collection for Air Quality Monitoring System",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Air Quality",
+      "item": [
+        {
+          "name": "Get Current Air Quality",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/air-quality/current",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "air-quality", "current"]
+            },
+            "description": "Returns the most recent air quality reading with all pollutant measurements"
+          }
+        },
+        {
+          "name": "Get Recent Readings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/air-quality/recent",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "air-quality", "recent"]
+            },
+            "description": "Returns the last 12 air quality readings for table display"
+          }
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/air-quality/health",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "air-quality", "health"]
+            },
+            "description": "Check if the Air Quality API is running"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Subscription",
+      "item": [
+        {
+          "name": "Subscribe to Alerts",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"threshold\": 150\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/subscribe",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "subscribe"]
+            },
+            "description": "Subscribe a citizen to air quality alerts"
+          }
+        },
+        {
+          "name": "Subscribe - Duplicate Email (Error)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jane Smith\",\n  \"email\": \"john.doe@example.com\",\n  \"threshold\": 100\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/subscribe",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "subscribe"]
+            },
+            "description": "Test duplicate email handling (409 Conflict)"
+          }
+        },
+        {
+          "name": "Subscribe - Invalid Data (Validation)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"A\",\n  \"email\": \"invalid-email\",\n  \"threshold\": -10\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/subscribe",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "subscribe"]
+            },
+            "description": "Test validation handling (400 Bad Request)"
+          }
+        },
+        {
+          "name": "Unsubscribe",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/unsubscribe/john.doe@example.com",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "unsubscribe", "john.doe@example.com"]
+            },
+            "description": "Unsubscribe from air quality alerts"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Testing",
+      "item": [
+        {
+          "name": "Generate Pollution Spike",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/test/pollution-spike",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "test", "pollution-spike"]
+            },
+            "description": "Force generation of high AQI values for testing alert system"
+          }
+        },
+        {
+          "name": "Reset to Good Quality",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/test/reset-quality",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "test", "reset-quality"]
+            },
+            "description": "Reset simulated data to good air quality levels"
+          }
+        },
+        {
+          "name": "Generate Data Immediately",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/test/generate-now",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "test", "generate-now"]
+            },
+            "description": "Force immediate data generation instead of waiting for scheduler"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Actuator",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/actuator/health",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["actuator", "health"]
+            },
+            "description": "Spring Boot Actuator health endpoint"
+          }
+        },
+        {
+          "name": "Application Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/actuator/info",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["actuator", "info"]
+            },
+            "description": "Application information"
+          }
+        },
+        {
+          "name": "Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/actuator/metrics",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["actuator", "metrics"]
+            },
+            "description": "Application metrics"
+          }
+        }
+      ]
+    }
+  ]
+}

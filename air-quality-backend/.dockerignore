@@ -1,0 +1,38 @@
+# Git
+
+.git
+.gitignore
+
+# Maven
+
+target
+.mvn
+mvnw
+mvnw.cmd
+
+# IDE
+
+.idea
+.vscode
+\*.iml
+.classpath
+.project
+.settings
+
+# OS
+
+.DS_Store
+Thumbs.db
+
+# Logs
+
+\*.log
+
+# Documentation (already in image if needed)
+
+docs/\*.md
+README.md
+
+# CI/CD
+
+.github
