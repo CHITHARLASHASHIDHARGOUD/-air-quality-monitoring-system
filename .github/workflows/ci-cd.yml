@@ -53,6 +53,7 @@ jobs:
         with:
           name: test-results
           path: air-quality-backend/target/surefire-reports/
+          if-no-files-found: ignore
 
       - name: Check Code Coverage
         working-directory: ./air-quality-backend
@@ -113,6 +114,7 @@ jobs:
         with:
           name: security-report
           path: air-quality-backend/target/dependency-check-report.html
+          if-no-files-found: ignore
 
   docker-build:
     name: Build Docker Image
