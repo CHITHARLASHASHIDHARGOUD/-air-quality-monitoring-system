@@ -1,0 +1,638 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Urban Air Quality Monitoring & Citizen Alert System</title>
+
+  <!-- Google font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg-image: url('https://images.unsplash.com/photo-1505842465776-3d1c2f7f3d7f?auto=format&fit=crop&w=1600&q=80'); /* city skyline / nature placeholder */
+      --glass-bg: rgba(255,255,255,0.08);
+      --glass-border: rgba(255,255,255,0.12);
+      --card-radius: 18px;
+      --accent: #7C5CFF;
+      --muted: rgba(255,255,255,0.85);
+      --shadow: 0 8px 30px rgba(8, 15, 30, 0.35);
+      --transition: 250ms cubic-bezier(.2,.9,.3,1);
+      font-family: "Inter",system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
+    }
+
+    /* Page background and overlay */
+    html,body{
+      height:100%;
+      margin:0;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      background:linear-gradient(120deg, rgba(6,18,30,0.6), rgba(10,30,60,0.35)), var(--bg-image) center/cover no-repeat fixed;
+      color: #fff;
+    }
+
+    /* central container */
+    .app {
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      gap:28px;
+      padding:32px;
+      backdrop-filter: blur(6px) saturate(110%);
+    }
+
+    /* Header */
+    header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+    }
+    .title {
+      display:flex;
+      gap:14px;
+      align-items:center;
+    }
+    .logo {
+      width:64px;
+      height:64px;
+      border-radius:14px;
+      background:linear-gradient(135deg,#00C9FF 0%, #92FE9D 100%);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#042;
+      font-weight:800;
+      font-size:20px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+    }
+    h1{ margin:0; font-size:1.25rem; letter-spacing:0.2px; font-weight:700; color:var(--muted) }
+    p.lead { margin:0; opacity:0.9; font-size:0.9rem; color:rgba(255,255,255,0.85) }
+
+    /* Layout grid */
+    main {
+      display:grid;
+      grid-template-columns: 360px 1fr;
+      gap:24px;
+      align-items:start;
+    }
+
+    /* Left column / dashboard */
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      border-radius: var(--card-radius);
+      border: 1px solid var(--glass-border);
+      padding:18px;
+      box-shadow: var(--shadow);
+      transition: transform var(--transition), box-shadow var(--transition);
+      backdrop-filter: blur(8px);
+    }
+    .card:hover { transform: translateY(-6px); }
+
+    .aqi-value {
+      display:flex;
+      align-items:center;
+      gap:16px;
+    }
+    .aqi-circle{
+      min-width:100px;
+      min-height:100px;
+      border-radius:20px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:800;
+      font-size:28px;
+      color:#042;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.35), inset 0 -6px 18px rgba(0,0,0,0.06);
+    }
+
+    /* Badge list */
+    .badges {
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+    .badge {
+      padding:8px 12px;
+      border-radius:999px;
+      font-weight:700;
+      font-size:0.85rem;
+      color:#042;
+      box-shadow: 0 6px 18px rgba(4,8,20,0.25);
+      transition: transform var(--transition);
+    }
+    .badge:hover { transform: translateY(-4px) }
+
+    /* Pollutant grid */
+    .metrics {
+      display:grid;
+      grid-template-columns: repeat(2,1fr);
+      gap:12px;
+      margin-top:18px;
+    }
+    .metric {
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+      border-radius:12px;
+      padding:12px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      border:1px solid rgba(255,255,255,0.06);
+      transition: transform var(--transition);
+    }
+    .metric:hover { transform: translateY(-4px) }
+    .metric .name { font-weight:700; font-size:0.9rem; color:var(--muted) }
+    .metric .val { font-weight:800; font-size:1.05rem; color:#fff }
+
+    /* Right column content */
+    .right {
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+    }
+
+    /* Table */
+    table {
+      width:100%;
+      border-collapse:collapse;
+      font-size:0.92rem;
+      color:rgba(255,255,255,0.95);
+      overflow:hidden;
+      border-radius:12px;
+    }
+    thead th {
+      text-align:left;
+      font-weight:700;
+      font-size:0.85rem;
+      padding:12px 14px;
+      background:linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+      border-bottom:1px solid rgba(255,255,255,0.04);
+    }
+    tbody td {
+      padding:12px 14px;
+      border-bottom:1px dashed rgba(255,255,255,0.03);
+    }
+
+    /* Subscription form */
+    form {
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top:8px;
+    }
+    input, select, button {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      padding:12px 14px;
+      border-radius:10px;
+      color:#fff;
+      outline:none;
+      font-size:0.95rem;
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+    input:focus, select:focus { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+    .btn {
+      background: linear-gradient(90deg, #7C5CFF, #2DB2FF);
+      border: none;
+      color: white;
+      font-weight:700;
+      cursor:pointer;
+      box-shadow: 0 10px 25px rgba(124,92,255,0.15);
+    }
+
+    /* Advisory banner */
+    .advisory {
+      padding:14px 18px;
+      border-radius:12px;
+      font-weight:700;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      color:#042;
+    }
+    .advisory .circle {
+      width:48px;
+      height:48px;
+      border-radius:12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:800;
+      font-size:1rem;
+      color:#042;
+      box-shadow: 0 8px 22px rgba(0,0,0,0.25);
+    }
+
+    /* AQI color mapping */
+    .aqi-good { background: linear-gradient(90deg,#A8FF78,#78FFD6); color:#042; }
+    .aqi-moderate { background: linear-gradient(90deg,#FFE47A,#FFB86B); color:#042; }
+    .aqi-unhealthy { background: linear-gradient(90deg,#FF9AA2,#FF6B6B); color:#042; }
+    .aqi-hazardous { background: linear-gradient(90deg,#D7307E,#5A00FF); color:#fff; }
+
+    /* small screens */
+    @media (max-width:980px){
+      main { grid-template-columns: 1fr; }
+      .aqi-circle { min-width:86px; min-height:86px; font-size:22px; border-radius:16px; }
+      .metrics { grid-template-columns: repeat(3,1fr); }
+    }
+
+    @media (max-width:640px){
+      .metrics { grid-template-columns: repeat(2,1fr); }
+      header { flex-direction:column; align-items:flex-start; gap:12px; }
+      .title h1 { font-size:1rem; }
+    }
+
+    /* small interactive touches */
+    .muted { color: rgba(255,255,255,0.75); font-size:0.9rem; }
+    .row { display:flex; gap:12px; align-items:center; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="title">
+        <div class="logo">UAQ</div>
+        <div>
+          <h1>Urban Air Quality Monitoring & Citizen Alert System</h1>
+          <p class="lead">Live AQI visualization • Real-time sensor feed • Citizen alerts</p>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="muted">Status:</div>
+        <div id="statusDot" style="width:14px;height:14px;border-radius:50%;background:#4CAF50;box-shadow:0 4px 14px rgba(76,175,80,0.2)"></div>
+      </div>
+    </header>
+
+    <main>
+      <!-- LEFT: Dashboard column -->
+      <div class="card" aria-labelledby="dashboardTitle">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <div id="dashboardTitle" style="font-weight:800;color:var(--muted);">Dashboard</div>
+            <div class="muted" style="margin-top:4px;font-weight:600">Current site: <span id="siteName">Central Park Monitoring Station</span></div>
+          </div>
+          <div class="muted">Updated: <span id="lastUpdated">--</span></div>
+        </div>
+
+        <!-- AQI big -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px">
+          <div>
+            <div class="aqi-value">
+              <div id="aqiCircle" class="aqi-circle aqi-good" aria-live="polite">--</div>
+              <div>
+                <div style="font-weight:700;font-size:0.95rem;color:var(--muted)">Air Quality Index</div>
+                <div id="aqiText" style="font-weight:800;font-size:1.1rem;margin-top:8px">-- • <span id="aqiCategory">--</span></div>
+                <div class="muted" style="margin-top:6px">Health message: <span id="healthMsg">--</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Badges -->
+          <div style="max-width:160px">
+            <div style="font-weight:700;color:var(--muted);margin-bottom:8px">AQI Scale</div>
+            <div class="badges">
+              <div id="badgeGood" class="badge aqi-good">Good</div>
+              <div id="badgeMod" class="badge aqi-moderate">Moderate</div>
+              <div id="badgeUn"  class="badge aqi-unhealthy">Unhealthy</div>
+              <div id="badgeHaz" class="badge aqi-hazardous">Hazardous</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pollutant metrics -->
+        <div class="metrics" aria-live="polite" id="metricsGrid" style="margin-top:14px">
+          <div class="metric"><div class="name">PM2.5</div><div class="val" id="pm25">-- µg/m³</div></div>
+          <div class="metric"><div class="name">PM10</div><div class="val" id="pm10">-- µg/m³</div></div>
+          <div class="metric"><div class="name">CO</div><div class="val" id="co">-- ppm</div></div>
+          <div class="metric"><div class="name">NO₂</div><div class="val" id="no2">-- ppb</div></div>
+          <div class="metric"><div class="name">O₃</div><div class="val" id="o3">-- ppb</div></div>
+          <div class="metric"><div class="name">Temp</div><div class="val" id="temp">-- °C</div></div>
+          <div class="metric"><div class="name">Humidity</div><div class="val" id="hum">-- %</div></div>
+        </div>
+
+        <!-- advisory -->
+        <div id="advisoryBanner" class="advisory aqi-good" style="margin-top:16px">
+          <div class="circle aqi-good">😊</div>
+          <div id="advisoryText" style="font-weight:800;color:var(--muted)">Air quality is good. Enjoy outdoor activities.</div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: Table + subscribe card -->
+      <div class="right">
+        <!-- recent readings table card -->
+        <div class="card" aria-labelledby="readingsTitle">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div id="readingsTitle" style="font-weight:800;color:var(--muted)">Recent Sensor Readings</div>
+              <div class="muted" style="margin-top:6px">Latest 8 readings (live simulated feed)</div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center">
+              <button class="btn" id="simulateBtn" style="padding:8px 12px;font-size:0.9rem">Simulate Update</button>
+            </div>
+          </div>
+
+          <div style="margin-top:14px;overflow:auto">
+            <table id="readingsTable" role="table">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>AQI</th>
+                  <th>PM2.5</th>
+                  <th>PM10</th>
+                  <th>Temp</th>
+                  <th>Humidity</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- sample rows -->
+                <tr><td>--</td><td>--</td><td>--</td><td>--</td><td>--</td><td>--</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Subscription / Alerts -->
+        <div class="card" aria-labelledby="subscribeTitle">
+          <div>
+            <div id="subscribeTitle" style="font-weight:800;color:var(--muted)">Subscribe for Alerts</div>
+            <div class="muted" style="margin-top:6px">Get notified when AQI exceeds your chosen threshold.</div>
+          </div>
+
+          <form id="subscribeForm" style="margin-top:12px" onsubmit="return false;">
+            <input id="subName" type="text" placeholder="Your name" aria-label="Name" required style="flex:1 1 180px">
+            <input id="subEmail" type="email" placeholder="Email" aria-label="Email" required style="flex:1 1 240px">
+            <input id="subCity" type="text" placeholder="City (e.g. Hyderabad)" aria-label="City" required style="flex:1 1 180px">
+            <select id="subThreshold" aria-label="AQI Threshold" required>
+              <option value="100">Alert if AQI ≥ 100 (Moderate)</option>
+              <option value="150">Alert if AQI ≥ 150 (Unhealthy)</option>
+              <option value="200">Alert if AQI ≥ 200 (Very Unhealthy)</option>
+              <option value="300">Alert if AQI ≥ 300 (Hazardous)</option>
+            </select>
+            <button id="subBtn" class="btn" style="padding:12px 18px">Subscribe & Alert</button>
+          </form>
+
+          <div id="subMsg" class="muted" style="margin-top:10px">No subscribers yet.</div>
+        </div>
+
+        <!-- Small notes / credits -->
+        <div style="color:rgba(255,255,255,0.7);font-size:0.9rem;">
+          <div style="margin-bottom:6px">Design: Vibrant cards, glassy overlays, and responsive layout.</div>
+          <div style="font-size:0.85rem;opacity:0.9">This page uses simulated data for demo purposes. Integrate with real sensors / MQTT / RESTful endpoints for production.</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    /***** Placeholder JS to simulate AQI data updates, change UI and send alert messages *****/
+
+    // Utility: format time
+    function timeNow(){
+      const d = new Date();
+      return d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    }
+
+    // Selectors
+    const aqiCircle = document.getElementById('aqiCircle');
+    const aqiText = document.getElementById('aqiText');
+    const aqiCategory = document.getElementById('aqiCategory');
+    const healthMsg = document.getElementById('healthMsg');
+    const advisoryBanner = document.getElementById('advisoryBanner');
+    const advisoryText = document.getElementById('advisoryText');
+    const lastUpdated = document.getElementById('lastUpdated');
+    const statusDot = document.getElementById('statusDot');
+
+    const pm25El = document.getElementById('pm25');
+    const pm10El = document.getElementById('pm10');
+    const coEl = document.getElementById('co');
+    const no2El = document.getElementById('no2');
+    const o3El = document.getElementById('o3');
+    const tempEl = document.getElementById('temp');
+    const humEl = document.getElementById('hum');
+
+    const tableBody = document.querySelector('#readingsTable tbody');
+
+    // Subscribers storage (simple in-memory placeholder)
+    const subscribers = [];
+
+    // Simulated sensor generator (returns object)
+    function generateReading(prevAQI) {
+      // Simple randomized variations; keep within 0-500
+      const base = prevAQI !== undefined ? prevAQI : Math.floor(Math.random()*120)+20;
+      // change small random delta
+      const delta = Math.floor(Math.random()*41) - 20;
+      let aqi = Math.min(500, Math.max(10, base + delta));
+
+      // pollutant proxies (very approximate)
+      const pm25 = Math.max(1, Math.round(aqi * (0.2 + Math.random()*0.6)));
+      const pm10 = Math.max(2, Math.round(pm25 * (0.8 + Math.random()*0.6)));
+      const co = (0.2 + (aqi/500) * 2 * Math.random()).toFixed(2); // ppm
+      const no2 = Math.round((aqi/500) * 120 * Math.random());
+      const o3 = Math.round((aqi/500) * 150 * Math.random());
+      const temp = (18 + Math.random()*12).toFixed(1);
+      const hum = Math.round(30 + Math.random()*60);
+
+      return {
+        time: timeNow(),
+        aqi, pm25, pm10, co, no2, o3, temp, hum
+      };
+    }
+
+    // Map AQI to category and messages (simple mapping)
+    function categorizeAQI(aqi) {
+      if(aqi <= 50) return {cat:'Good', className:'aqi-good', msg:'Air quality is good.'};
+      if(aqi <= 100) return {cat:'Moderate', className:'aqi-moderate', msg:'Acceptable; sensitive groups should take caution.'};
+      if(aqi <= 200) return {cat:'Unhealthy', className:'aqi-unhealthy', msg:'Unhealthy — reduce prolonged outdoor exertion.'};
+      return {cat:'Hazardous', className:'aqi-hazardous', msg:'Hazardous — avoid outdoor activities and follow official guidance.'};
+    }
+
+    // Update UI with a reading
+    function updateUI(reading) {
+      // aqi
+      aqiCircle.textContent = reading.aqi;
+      const cat = categorizeAQI(reading.aqi);
+      aqiCategory.textContent = cat.cat;
+      healthMsg.textContent = cat.msg;
+
+      // update class names (remove others, add correct)
+      aqiCircle.className = 'aqi-circle ' + cat.className;
+      advisoryBanner.className = 'advisory ' + cat.className;
+      advisoryBanner.querySelector('.circle').className = 'circle ' + cat.className;
+      advisoryText.textContent = cat.msg;
+
+      // metrics
+      pm25El.textContent = reading.pm25 + ' µg/m³';
+      pm10El.textContent = reading.pm10 + ' µg/m³';
+      coEl.textContent = reading.co + ' ppm';
+      no2El.textContent = reading.no2 + ' ppb';
+      o3El.textContent = reading.o3 + ' ppb';
+      tempEl.textContent = reading.temp + ' °C';
+      humEl.textContent = reading.hum + ' %';
+
+      lastUpdated.textContent = reading.time;
+
+      // table: prepend new row
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${reading.time}</td>
+                      <td>${reading.aqi}</td>
+                      <td>${reading.pm25}</td>
+                      <td>${reading.pm10}</td>
+                      <td>${reading.temp}°C</td>
+                      <td>${reading.hum}%</td>`;
+      tableBody.prepend(tr);
+      // keep only 12 rows
+      while(tableBody.children.length > 12) tableBody.removeChild(tableBody.lastChild);
+    }
+
+    // Send alerts to subscribers if threshold reached
+    function notifySubscribers(reading) {
+      const triggered = subscribers.filter(s => reading.aqi >= +s.threshold);
+      if(triggered.length === 0) return;
+
+      // Visual browser alert (placeholder) + console log
+      triggered.forEach(s => {
+        // In production: send email/SMS push via backend
+        const msg = `Alert for ${s.name} (${s.email}): AQI ${reading.aqi} at ${reading.time} exceeded your threshold (${s.threshold}).`;
+        console.info(msg);
+        // show small popup in page
+        showTransientToast(`${s.name}, alert: AQI ${reading.aqi} ≥ ${s.threshold}`, 7000);
+      });
+    }
+
+    // Small toast helper
+    function showTransientToast(text, ms=4000){
+      const t = document.createElement('div');
+      t.textContent = text;
+      Object.assign(t.style, {
+        position:'fixed', right:'20px', bottom:'22px',
+        background:'rgba(0,0,0,0.6)', color:'#fff',
+        padding:'12px 16px', borderRadius:'10px', zIndex:9999,
+        boxShadow:'0 10px 30px rgba(0,0,0,0.45)'
+      });
+      document.body.appendChild(t);
+      setTimeout(()=> t.style.opacity='0.02', ms-300);
+      setTimeout(()=> t.remove(), ms);
+    }
+
+    // Simulation runner: periodic update
+    let lastReading;
+    function simulateOnce() {
+      const r = generateReading(lastReading ? lastReading.aqi : undefined);
+      lastReading = r;
+      updateUI(r);
+      notifySubscribers(r);
+      // status dot color by threshold
+      const dotColor = (r.aqi <= 100) ? '#4CAF50' : (r.aqi <= 200 ? '#FFB74D' : '#FF6B6B');
+      statusDot.style.background = dotColor;
+    }
+
+    // Hook up simulate button
+    document.getElementById('simulateBtn').addEventListener('click', ()=>{
+      simulateOnce();
+    });
+
+    // Auto simulate every 12 seconds to show live feed (placeholder)
+    let autoSim = setInterval(simulateOnce, 12000);
+
+    // Subscribe form handling — calls backend API
+    const API_BASE = 'http://localhost:8080/api';
+
+    document.getElementById('subscribeForm').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const name = document.getElementById('subName').value.trim();
+      const email = document.getElementById('subEmail').value.trim();
+      const city = document.getElementById('subCity').value.trim();
+      const threshold = document.getElementById('subThreshold').value;
+
+      if(!name || !email || !city) {
+        showTransientToast('Please fill name, email, and city');
+        return;
+      }
+
+      const subBtn = document.getElementById('subBtn');
+      subBtn.disabled = true;
+      subBtn.textContent = 'Subscribing...';
+
+      try {
+        // 1. Subscribe via backend
+        const subRes = await fetch(API_BASE + '/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, city, threshold: parseInt(threshold) })
+        });
+        const subData = await subRes.json();
+
+        if (!subRes.ok) {
+          showTransientToast(subData.message || 'Subscription failed', 5000);
+          return;
+        }
+
+        subscribers.push({name, email, city, threshold});
+        const serverMsg = subData.data && subData.data.message ? subData.data.message : 'Subscribed!';
+        document.getElementById('subMsg').textContent = serverMsg;
+        showTransientToast(serverMsg, 5000);
+
+        // 2. Fetch real AQI for the city so backend has data and alert triggers
+        try {
+          await fetch(API_BASE + '/air-quality/city/' + encodeURIComponent(city));
+        } catch(ignore) {}
+
+        // 3. Trigger immediate alert check
+        try {
+          const alertRes = await fetch(API_BASE + '/check-alert', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+          });
+          const alertData = await alertRes.json();
+          if (alertRes.ok && alertData.message) {
+            showTransientToast(alertData.message, 6000);
+          }
+        } catch(ignore) {}
+
+        // Reset form
+        document.getElementById('subName').value = '';
+        document.getElementById('subEmail').value = '';
+        document.getElementById('subCity').value = '';
+
+      } catch (err) {
+        console.error('Subscribe error:', err);
+        showTransientToast('Could not connect to server. Is the backend running?', 5000);
+      } finally {
+        subBtn.disabled = false;
+        subBtn.textContent = 'Subscribe & Alert';
+      }
+    });
+
+    // Kick off initial simulated values
+    (function init(){
+      // seed with a few sample readings
+      for(let i=0;i<4;i++){
+        const r = generateReading(i===0 ? 80 : undefined);
+        lastReading = r;
+        // fill table entries but don't notify
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${r.time}</td><td>${r.aqi}</td><td>${r.pm25}</td><td>${r.pm10}</td><td>${r.temp}°C</td><td>${r.hum}%</td>`;
+        tableBody.appendChild(tr);
+      }
+      // show most recent
+      updateUI(lastReading);
+    })();
+
+    // Accessibility: keyboard shortcut to simulate (S)
+    document.addEventListener('keydown', (ev)=>{
+      if(ev.key.toLowerCase() === 's') {
+        simulateOnce();
+        showTransientToast('Simulated update (shortcut S)');
+      }
+    });
+
+    // Clean-up before page unload (stop intervals)
+    window.addEventListener('beforeunload', ()=> clearInterval(autoSim));
+  </script>
+</body>
+</html>
