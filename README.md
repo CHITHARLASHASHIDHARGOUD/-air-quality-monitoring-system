@@ -2,7 +2,7 @@
 
 ## Badges
 
-![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk)
+![Java](https://img.shields.io/badge/Java-17-orange?logo=openjdk)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.2-6DB33F?logo=springboot)
 ![Maven](https://img.shields.io/badge/Maven-Build-C71A36?logo=apachemaven)
 ![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql)
