@@ -10,6 +10,8 @@ on:
 env:
   JAVA_VERSION: "17"
   MAVEN_VERSION: "3.8.9"
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  HAS_DOCKER_CREDS: ${{ secrets.DOCKER_USERNAME != '' && secrets.DOCKER_PASSWORD != '' }}
 
 jobs:
   build-and-test:
@@ -120,7 +122,7 @@ jobs:
     name: Build Docker Image
     runs-on: ubuntu-latest
     needs: [build-and-test, code-quality, security-scan]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && env.HAS_DOCKER_CREDS == 'true'
 
     steps:
       - name: Checkout code
